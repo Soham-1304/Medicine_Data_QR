@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medicine Information</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f7f9fb;
+      color: #111111;
+      padding: 20px 16px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 440px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      height: fit-content;
+    }
+    .header {
+      background-color: #1565C0;
+      color: #ffffff;
+      padding: 20px 18px;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .header .generic {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 4px;
+      font-weight: 400;
+    }
+    .badge-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-valid {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+    .badge-expired {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+    .badge-strip {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+    .content {
+      padding: 18px;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888888;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+    }
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #eeeeee;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid #eeeeee;
+      font-size: 14px;
+    }
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #666666;
+    }
+    .info-value {
+      font-weight: 600;
+      color: #111111;
+      text-align: right;
+    }
+    .desc-box {
+      margin-top: 16px;
+      padding: 14px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #333333;
+    }
+    .footer {
+      padding: 14px 18px;
+      background: #ffffff;
+      border-top: 1px solid #eeeeee;
+      text-align: center;
+      font-size: 11px;
+      color: #999999;
+    }
+    .error-view {
+      padding: 32px 18px;
+      text-align: center;
+    }
+    .error-view h2 {
+      font-size: 17px;
+      color: #d32f2f;
+      margin-bottom: 8px;
+    }
+    .error-view p {
+      font-size: 13px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="card">
+    <div class="header">
+      <h1 id="med-name">Loading...</h1>
+      <div class="generic" id="med-generic"></div>
+      <div class="badge-bar">
+        <span class="badge badge-strip">Strip Internal QR</span>
+        <span class="badge" id="status-badge"></span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="section-title">Product Details</div>
+      <div class="info-list">
+        <div class="info-item">
+          <span class="info-label">Dosage</span>
+          <span class="info-value" id="med-dosage">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Manufacturer</span>
+          <span class="info-value" id="med-manufacturer">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Batch No.</span>
+          <span class="info-value" id="med-batch">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Mfg Date</span>
+          <span class="info-value" id="med-mfg">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Expiry Date</span>
+          <span class="info-value" id="med-exp">-</span>
+        </div>
+      </div>
+      <div class="desc-box" id="med-desc" style="display: none;"></div>
+    </div>
+    <div class="footer">
+      Verified Medicine Information &bull; Internal Strip QR
+    </div>
+  </div>
+
+  <script>
+    function parseParams() {
+      try {
+        // First check hash fragment for base64 JSON (#data=... or #ey...)
+        if (window.location.hash) {
+          const hashStr = window.location.hash.substring(1);
+          let rawJson = null;
+          if (hashStr.startsWith('d=')) {
+            rawJson = atob(decodeURIComponent(hashStr.substring(2)));
+          } else {
+            try {
+              rawJson = atob(decodeURIComponent(hashStr));
+            } catch (e) {
+              // fallback if not base64
+            }
+          }
+          if (rawJson) {
+            const data = JSON.parse(rawJson);
+            return {
+              name: data.n || data.name,
+              generic: data.g || data.genericName,
+              dosage: data.d || data.dosage,
+              manufacturer: data.m || data.manufacturer,
+              batch: data.b || data.batchNo,
+              mfg: data.mf || data.mfgDate,
+              exp: data.ex || data.expDate,
+              desc: data.s || data.description
+            };
+          }
+        }
+
+        // Check URL Search Params (?name=... or ?n=...)
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('n') || params.get('name')) {
+          return {
+            name: params.get('n') || params.get('name'),
+            generic: params.get('g') || params.get('genericName') || '',
+            dosage: params.get('d') || params.get('dosage') || '',
+            manufacturer: params.get('m') || params.get('manufacturer') || '',
+            batch: params.get('b') || params.get('batchNo') || '',
+            mfg: params.get('mf') || params.get('mfgDate') || '',
+            exp: params.get('ex') || params.get('expDate') || '',
+            desc: params.get('s') || params.get('description') || ''
+          };
+        }
+      } catch (err) {
+        console.error("Failed to parse params", err);
+      }
+      return null;
+    }
+
+    const data = parseParams();
+    if (!data || !data.name) {
+      document.getElementById('card').innerHTML = `
+        <div class="error-view">
+          <h2>No Medicine Data Found</h2>
+          <p>This link does not contain valid medicine metadata. Please scan a valid medicine QR code.</p>
+        </div>
+      `;
+    } else {
+      document.getElementById('med-name').textContent = data.name;
+      document.getElementById('med-generic').textContent = data.generic || '';
+      document.getElementById('med-dosage').textContent = data.dosage || '-';
+      document.getElementById('med-manufacturer').textContent = data.manufacturer || '-';
+      document.getElementById('med-batch').textContent = data.batch || '-';
+      document.getElementById('med-mfg').textContent = data.mfg || '-';
+      document.getElementById('med-exp').textContent = data.exp || '-';
+
+      if (data.desc && data.desc.trim() !== '') {
+        const descEl = document.getElementById('med-desc');
+        descEl.textContent = data.desc;
+        descEl.style.display = 'block';
+      }
+
+      // Check Expiry Date
+      const badge = document.getElementById('status-badge');
+      if (data.exp) {
+        const expDate = new Date(data.exp);
+        const today = new Date();
+        // compare year and month or full date
+        if (!isNaN(expDate.getTime()) && expDate < today) {
+          badge.className = 'badge badge-expired';
+          badge.textContent = 'EXPIRED';
+        } else {
+          badge.className = 'badge badge-valid';
+          badge.textContent = 'ACTIVE / VALID';
+        }
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
