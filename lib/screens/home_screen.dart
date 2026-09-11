@@ -177,13 +177,15 @@ class HomeScreen extends StatelessWidget {
                   final med = entry.value;
                   final isExpired = med.expDate.isBefore(now);
 
-                  return Container(
+                  return Card(
                     margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    color: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
+                    clipBehavior: Clip.antiAlias,
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                       leading: Container(
