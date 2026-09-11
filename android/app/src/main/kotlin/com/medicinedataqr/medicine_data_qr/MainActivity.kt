@@ -1,0 +1,5 @@
+package com.medicinedataqr.medicine_data_qr
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()
