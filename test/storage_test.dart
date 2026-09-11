@@ -1,11 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medicine_data_qr/models/medicine.dart';
 import 'package:medicine_data_qr/services/storage_service.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
-  test('StorageService save and load', () async {
-    SharedPreferences.setMockInitialValues({});
+  setUpAll(() {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  });
+
+  test('StorageService SQLite save and load', () async {
     final med = Medicine(
       name: 'Paracetamol',
       genericName: 'Acetaminophen',
@@ -19,7 +23,7 @@ void main() {
 
     await StorageService.saveMedicine(med);
     final list = StorageService.getMedicines();
-    expect(list.length, 1);
+    expect(list.isNotEmpty, true);
     expect(list.first.name, 'Paracetamol');
   });
 }

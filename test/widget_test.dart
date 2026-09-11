@@ -1,11 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicine_data_qr/main.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
-  testWidgets('App launches and shows home screen', (WidgetTester tester) async {
-    SharedPreferences.setMockInitialValues({});
+  setUpAll(() {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  });
 
+  testWidgets('App launches and shows home screen', (WidgetTester tester) async {
     await tester.pumpWidget(const MedicineDataQRApp());
     await tester.pumpAndSettle();
 
