@@ -4,7 +4,7 @@ class AppConfig {
   /// Production hosted URL on GitHub Pages where view.html is published.
   /// When your aunt or anyone scans the QR from a medicine strip, this is the URL that opens!
   static const String productionViewerUrl =
-      'https://sohamkarandikar.github.io/Medicine_Data_QR/view.html';
+      'https://soham-1304.github.io/Medicine_Data_QR/view.html';
 
   /// Automatically picks the right URL:
   /// - If running on Web: uses current site origin + /view.html (e.g. localhost during dev, or live web URL)
